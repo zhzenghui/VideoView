@@ -9,7 +9,9 @@
 #import "ZHCameraVideoHelper.h"
 #import <CoreMedia/CoreMedia.h>
 #import <ImageIO/ImageIO.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 
+static void * RecordingContext = &RecordingContext;
 
 @implementation ZHCameraVideoHelper
 
@@ -17,6 +19,11 @@
 
 - (void) initialize
 {
+    
+    
+    [self setBackgroundRecordingID:UIBackgroundTaskInvalid];
+
+    
     //1.创建会话层
     self.session = [[AVCaptureSession alloc] init];
     if ([_session canSetSessionPreset:AVCaptureSessionPreset1280x720]) {
@@ -26,7 +33,26 @@
         // Handle the failure.
     }
     
+    
     //2.创建、配置输入设备
+    
+//    麦克
+    NSError *error;
+    
+    AVCaptureDevice *audioDevice = [[AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio] firstObject];
+    AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioDevice error:&error];
+	if (!audioDeviceInput)
+	{
+		NSLog(@"Error: %@", error);
+		return;
+	}
+    [self.session addInput:audioDeviceInput];
+    
+
+    
+    
+    
+//    摄像机
     AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     
     
@@ -53,7 +79,8 @@
     [device addObserver:self forKeyPath:@"adjustingFocus" options:flags context:nil];
 #endif
     
-	NSError *error;
+    
+    
 	AVCaptureDeviceInput *captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
 	if (!captureInput)
 	{
@@ -88,8 +115,19 @@
 	[self.session addOutput:_captureOutput];
     
     
+    dispatch_async([self sessionQueue], ^{
+
+		[self addObserver:self forKeyPath:@"movieFileOutput.recording" options:(NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew) context:RecordingContext];
+
+		
+
+		[[self session] startRunning];
+	});
+
+    
     
 }
+
 
 - (void)setClipSquare
 {
@@ -152,6 +190,30 @@
             [_delegate foucusStatus:adjustingFocus];
         }
     }
+    else if (context == RecordingContext)
+	{
+		BOOL isRecording = [change[NSKeyValueChangeNewKey] boolValue];
+		
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (isRecording)
+			{
+                //				[[self cameraButton] setEnabled:NO];
+                //				[[self recordButton] setTitle:NSLocalizedString(@"Stop", @"Recording button stop title") forState:UIControlStateNormal];
+                //				[[self recordButton] setEnabled:YES];
+                
+                NSLog(@"stop");
+			}
+			else
+			{
+                //				[[self cameraButton] setEnabled:YES];
+                //				[[self recordButton] setTitle:NSLocalizedString(@"Record", @"Recording button record title") forState:UIControlStateNormal];
+                //				[[self recordButton] setEnabled:YES];
+                
+                
+                NSLog(@"start");
+            }
+		});
+	}
 }
 
 
@@ -256,7 +318,7 @@
 			if ([[UIDevice currentDevice] isMultitaskingSupported])
 			{
 				// Setup background task. This is needed because the captureOutput:didFinishRecordingToOutputFileAtURL: callback is not received until AVCam returns to the foreground unless you request background execution time. This also ensures that there will be time to write the file to the assets library when AVCam is backgrounded. To conclude this background execution, -endBackgroundTask is called in -recorder:recordingDidFinishToOutputFileURL:error: after the recorded file has been saved.
-//				[self setBackgroundRecordingID:[[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:nil]];
+				[self setBackgroundRecordingID:[[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:nil]];
 			}
 			
 			// Update the orientation on the movie file output video connection before starting recording.
@@ -267,12 +329,14 @@
 //			[AVCamViewController setFlashMode:AVCaptureFlashModeOff forDevice:[[self videoDeviceInput] device]];
 			
 
+
             
 			// Start recording to a temporary file.
             NSString *shu = [NSString stringWithFormat:@"%d", arc4random()];
-            NSString *name = [NSString stringWithFormat:@"movie_%@", shu ];
+            NSString *name = [NSString stringWithFormat:@"m_%@", shu ];
 			NSString *outputFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[name stringByAppendingPathExtension:@"mov"]];
 			[[self movieFileOutput] startRecordingToOutputFileURL:[NSURL fileURLWithPath:outputFilePath] recordingDelegate:self];
+
 		}
 		else
 		{
@@ -281,6 +345,92 @@
 	});
     
 }
+
+-(void)CropVideo:(NSURL*) filePath : (BOOL) forceToPortrait : (BOOL) deleteOriginalVideo{
+    
+    NSString* docFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+
+    NSString *shu = [NSString stringWithFormat:@"%d", arc4random()];
+    NSString *name = [NSString stringWithFormat:@"m_%@", shu ];
+    NSString *outputPath = [docFolder stringByAppendingPathComponent:[name stringByAppendingPathExtension:@"mov"]];
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:outputPath])
+        [[NSFileManager defaultManager] removeItemAtPath:outputPath error:nil];
+    
+    
+    
+    AVAsset* originalAsset = [AVAsset assetWithURL:filePath];
+    
+    AVMutableComposition *composition = [AVMutableComposition composition];
+    [composition  addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    AVAssetTrack *originalAssetTrack = [[originalAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    
+    AVMutableVideoComposition* videoComposition = [AVMutableVideoComposition videoComposition];
+    videoComposition.renderSize = CGSizeMake(640, 640);
+    videoComposition.frameDuration = CMTimeMake(1, 30);
+    
+    AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(60, 30) );
+    
+    if (forceToPortrait){
+        AVMutableVideoCompositionLayerInstruction* transformer = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:originalAssetTrack];
+        CGAffineTransform t1 = CGAffineTransformMakeTranslation(originalAssetTrack.naturalSize.height, -(originalAssetTrack.naturalSize.width - originalAssetTrack.naturalSize.height) /2 );
+        CGAffineTransform t2 = CGAffineTransformRotate(t1, M_PI_2);
+        
+        CGAffineTransform finalTransform = t2;
+        [transformer setTransform:finalTransform atTime:kCMTimeZero];
+        instruction.layerInstructions = [NSArray arrayWithObject:transformer];
+        videoComposition.instructions = [NSArray arrayWithObject: instruction];
+    }
+    
+    exporter = [[AVAssetExportSession alloc] initWithAsset:originalAsset presetName:AVAssetExportPresetHighestQuality] ;
+    exporter.videoComposition = videoComposition;
+    exporter.outputURL=[NSURL fileURLWithPath:outputPath];
+    exporter.outputFileType=AVFileTypeQuickTimeMovie;
+    
+    [exporter exportAsynchronouslyWithCompletionHandler:^(void){
+        NSLog(@"FinishedExporting!");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSLog(@"%@", filePath.absoluteString);
+            if (deleteOriginalVideo && [[NSFileManager defaultManager] fileExistsAtPath:filePath.absoluteString]){
+                [[NSFileManager defaultManager] removeItemAtPath:filePath.absoluteString error:nil];
+            }
+            
+        }
+                       
+                       );
+    }];
+}
+
+
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
+{
+	if (error)
+		NSLog(@"%@", error);
+	
+//	[self setLockInterfaceRotation:NO];
+	
+	// Note the backgroundRecordingID for use in the ALAssetsLibrary completion handler to end the background task associated with this recording. This allows a new recording to be started, associated with a new UIBackgroundTaskIdentifier, once the movie file output's -isRecording is back to NO — which happens sometime after this method returns.
+	UIBackgroundTaskIdentifier backgroundRecordingID = [self backgroundRecordingID];
+	[self setBackgroundRecordingID:UIBackgroundTaskInvalid];
+	
+
+    [self  CropVideo:outputFileURL :YES :YES ];
+//	[[[ALAssetsLibrary alloc] init] writeVideoAtPathToSavedPhotosAlbum:outputFileURL completionBlock:^(NSURL *assetURL, NSError *error) {
+//		if (error)
+//			NSLog(@"%@", error);
+//		
+//		[[NSFileManager defaultManager] removeItemAtURL:outputFileURL error:nil];
+//		
+//		if (backgroundRecordingID != UIBackgroundTaskInvalid)
+//			[[UIApplication sharedApplication] endBackgroundTask:backgroundRecordingID];
+//	}];
+}
+
+
+
+
 
 
 - (void) startRunning

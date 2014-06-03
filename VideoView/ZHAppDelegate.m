@@ -7,12 +7,25 @@
 //
 
 #import "ZHAppDelegate.h"
+#import "ZHViewController.h"
+
 
 @implementation ZHAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.backgroundColor = [UIColor whiteColor];
+    
+    ZHViewController *masterViewController = [[ZHViewController alloc] init];
+    
+//    UINavigationController  *_masterNavigationController = [[UINavigationController alloc] initWithRootViewController:masterViewController];
+
+    
+    self.window.rootViewController = masterViewController; //_masterNavigationController;
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 							

@@ -13,7 +13,6 @@
 		C04B15F119381D6500A9FB2F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C04B15EF19381D6500A9FB2F /* InfoPlist.strings */; };
 		C04B15F319381D6500A9FB2F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C04B15F219381D6500A9FB2F /* main.m */; };
 		C04B15F719381D6500A9FB2F /* ZHAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C04B15F619381D6500A9FB2F /* ZHAppDelegate.m */; };
-		C04B15FA19381D6500A9FB2F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C04B15F819381D6500A9FB2F /* Main.storyboard */; };
 		C04B15FD19381D6500A9FB2F /* ZHViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C04B15FC19381D6500A9FB2F /* ZHViewController.m */; };
 		C04B15FF19381D6500A9FB2F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C04B15FE19381D6500A9FB2F /* Images.xcassets */; };
 		C04B160619381D6500A9FB2F /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C04B160519381D6500A9FB2F /* XCTest.framework */; };
@@ -47,7 +46,6 @@
 		C04B15F419381D6500A9FB2F /* VideoView-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VideoView-Prefix.pch"; sourceTree = "<group>"; };
 		C04B15F519381D6500A9FB2F /* ZHAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHAppDelegate.h; sourceTree = "<group>"; };
 		C04B15F619381D6500A9FB2F /* ZHAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHAppDelegate.m; sourceTree = "<group>"; };
-		C04B15F919381D6500A9FB2F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		C04B15FB19381D6500A9FB2F /* ZHViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZHViewController.h; sourceTree = "<group>"; };
 		C04B15FC19381D6500A9FB2F /* ZHViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZHViewController.m; sourceTree = "<group>"; };
 		C04B15FE19381D6500A9FB2F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -127,7 +125,6 @@
 				C04B161D19381D7B00A9FB2F /* VideoViewcontroller.h */,
 				C04B161E19381D7B00A9FB2F /* VideoViewcontroller.m */,
 				C04B161F19381D7B00A9FB2F /* VideoViewcontroller.xib */,
-				C04B15F819381D6500A9FB2F /* Main.storyboard */,
 				C04B15FB19381D6500A9FB2F /* ZHViewController.h */,
 				C04B15FC19381D6500A9FB2F /* ZHViewController.m */,
 				C04B15FE19381D6500A9FB2F /* Images.xcassets */,
@@ -245,7 +242,6 @@
 				C04B15FF19381D6500A9FB2F /* Images.xcassets in Resources */,
 				C04B15F119381D6500A9FB2F /* InfoPlist.strings in Resources */,
 				C04B162219381D7B00A9FB2F /* VideoViewcontroller.xib in Resources */,
-				C04B15FA19381D6500A9FB2F /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,14 +293,6 @@
 				C04B15F019381D6500A9FB2F /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		C04B15F819381D6500A9FB2F /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C04B15F919381D6500A9FB2F /* Base */,
-			);
-			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 		C04B160E19381D6500A9FB2F /* InfoPlist.strings */ = {
@@ -398,6 +386,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VideoView/VideoView-Prefix.pch";
 				INFOPLIST_FILE = "VideoView/VideoView-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
@@ -412,6 +401,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "VideoView/VideoView-Prefix.pch";
 				INFOPLIST_FILE = "VideoView/VideoView-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
@@ -477,6 +467,7 @@
 				C04B161719381D6500A9FB2F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C04B161819381D6500A9FB2F /* Build configuration list for PBXNativeTarget "VideoViewTests" */ = {
 			isa = XCConfigurationList;
@@ -485,6 +476,7 @@
 				C04B161A19381D6500A9FB2F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

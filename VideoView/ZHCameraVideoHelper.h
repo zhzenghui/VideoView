@@ -15,10 +15,15 @@
 AVCaptureFileOutputRecordingDelegate>
 {
     UIImageOrientation g_orientation;
-    
+    AVAssetExportSession *exporter;
     
 }
 @property (nonatomic) dispatch_queue_t sessionQueue; // Communicate with the session and other session objects on this queue.
+
+
+@property (nonatomic) UIBackgroundTaskIdentifier backgroundRecordingID;
+
+
 
 @property (retain) AVCaptureSession *session;
 @property (retain) AVCaptureStillImageOutput *captureOutput;
@@ -31,18 +36,18 @@ AVCaptureFileOutputRecordingDelegate>
 - (void) startRunning;
 - (void) stopRunning;
 
-- (void)setDelegate:(id<AVVideoHelperDelegate>)_delegate;
-- (void)CaptureStillImage;
-- (void)embedPreviewInView: (UIView *) aView;
-- (void)changePreviewOrientation:(UIInterfaceOrientation)interfaceOrientation;
-- (void)removeAVObserver;
+- (void) setDelegate:(id<AVVideoHelperDelegate>)_delegate;
+- (void) CaptureStillImage;
+- (void) embedPreviewInView: (UIView *) aView;
+- (void) changePreviewOrientation:(UIInterfaceOrientation)interfaceOrientation;
+- (void) removeAVObserver;
 
-- (void)toggleMovieRecording:(id)sender;
+- (void) toggleMovieRecording:(id)sender;
 
 @end
 
 @protocol AVVideoHelperDelegate <NSObject>
 
-- (void)didFinishedCapture:(UIImage*)_img;
-- (void)foucusStatus:(BOOL)isadjusting;
+- (void) didFinishedCapture:(UIImage*)_img;
+- (void) foucusStatus:(BOOL)isadjusting;
 @end
